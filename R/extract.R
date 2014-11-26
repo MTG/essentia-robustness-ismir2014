@@ -13,9 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-#options(echo=T)
+# options(echo=T)
 
-DEFAULT_BASE_PATH <- file.path("..","data")
+library(tools)
+
+DEFAULT_PATH_BASE <- file.path("..", "data")
 
 # PARSE COMMAND LINE ARGUMENTS #####################################################################
 
@@ -24,11 +26,11 @@ tool.name <- args[1]
 track.length <- args[2]
 srate <- args[3]
 descriptor.name <- args[4]
-base.path <- args[5]
-base.path <- ifelse(is.na(base.path), DEFAULT_BASE_PATH, base.path)
+path.base <- args[5]
+path.base <- ifelse(is.na(path.base), DEFAULT_PATH_BASE, path.base)
 
 # Check arguments
-if(is.na(tool.name) | is.na(track.length) | is.na(srate) | is.na(descriptor.name) | is.na(base.path)){
+if(is.na(tool.name) | is.na(track.length) | is.na(srate) | is.na(descriptor.name) | is.na(path.base)){
   cat(sep="",
       "usage: Rscript extract.R <tool> <track-length> <srate> <descriptor> [<path>]\n",
       "\n",
@@ -36,7 +38,7 @@ if(is.na(tool.name) | is.na(track.length) | is.na(srate) | is.na(descriptor.name
       "track-length  length of the track used to compute descriptors, eg '30-60'.\n",
       "srate         sampling rate of the track used to compute descriptors, eg. '44100'.\n",
       "descriptor    name of the descriptor to extract, eg. 'lowlevel.mfcc.mean'.\n",
-      "path          optional path to all data, defaults to '", DEFAULT_BASE_PATH, "'.\n",
+      "path          optional path to all data, defaults to '", DEFAULT_PATH_BASE, "'.\n",
       "\n",
       "Expected file structure:\n",
       "  path/descriptors/<tool>/<track-length>/<srate>/<descriptor>/<codec>/<brate>/<param1>-...-<paramN>/<genre>/file\n")
@@ -46,9 +48,9 @@ if(!file.exists(file.path("extractors", paste0(tool.name,".R")))){
   cat(sep="", "Error: tool '", tool.name, "' does not exist.\n")
   q(status=1)
 }
-base.path <- file.path(base.path, "descriptors", tool.name, track.length, srate)
-if(!file.exists(base.path)){
-  cat(sep="", "Error: path '", base.path, "' does not exist.\n")
+path.descriptors <- file.path(path.base, "descriptors", tool.name, track.length, srate)
+if(!file.exists(path.descriptors)){
+  cat(sep="", "Error: path '", path.descriptors, "' does not exist.\n")
   q(status=1)
 }
 
@@ -61,8 +63,24 @@ if(!exists("extract.data", mode="function")){
 
 # RUN ##############################################################################################
 
-# Traverse file structure
-for(codec.path in list.dirs(recursive=F, base.path)){
+# Prepare destination file =========================================================================
+
+# For efficiency, we simply write tab-separated raw data instead of creating an temporary data.frame
+# and then writing it to the file.
+path.extracted <- file.path(path.base, "extracted", tool.name, track.length, srate)
+dir.create(path.extracted, recursive=T, showWarnings=F)
+path.extracted <- file.path(path.extracted, paste0(descriptor.name,".txt"))
+# Delete previous data, if any
+unlink(path.extracted, force=T)
+# Initialize file
+conn <- file(path.extracted, open="w")
+# At this point we don't know anything about analysis parameters or size of the descriptor data,
+# so we can't just write column names now. Keep this variable to tell us when to write the header
+# for the first time.
+conn.head <- F
+
+# Traverse file structure and extract ==============================================================
+for(codec.path in list.dirs(recursive=F, path.descriptors)){
   codec <- basename(codec.path)
   for(brate.path in list.dirs(recursive=F, codec.path)){
     brate <- basename(brate.path)
@@ -70,21 +88,50 @@ for(codec.path in list.dirs(recursive=F, base.path)){
       # Parse params. If just '=', set to empty vector
       params <- basename(params.path)
       if(params=="-"){
-        params <- character(0)
+        params <- NULL
       }else{
         params <- unlist(strsplit(params, split="-", fixed=T))
       }
       for(genre.path in list.dirs(recursive=F, params.path)){
         genre <- basename(genre.path)
         for(file.path in list.files(recursive=F, full.names=T, genre.path)){
-          file <- basename(file.path)
+          file <- basename(file_path_sans_ext(file.path))
           
           # Extract descriptor from file
           d <- extract.data(file.path, descriptor.name)
+          if(is.null(d)){
+            # Something wrong with extractor, probably wrong descriptor name
+            cat(sep="", "Error: null descriptor data for file '", file.path, "'.\n")
+            q(status=1)
+          }
           
-          # TODO
+          # Write column names if first time here
+          if(!conn.head){
+            if(is.null(params)){
+              newline <- paste(c("codec", "brate",
+                                 "genre", "file",
+                                 paste0("x", seq_along(d))), collapse="\t")
+            }else{
+              newline <- paste(c("codec", "brate",
+                                 paste0("param", seq_along(params)),
+                                 "genre", "file",
+                                 paste0("x", seq_along(d))), collapse="\t")
+            }
+            writeLines(newline, con=conn)
+            conn.head <- T
+          }
+          # Write actual descriptor data          
+          if(is.null(params)){
+            newline <- paste(c(codec, brate, genre, file, d), collapse="\t")
+          }else{
+            newline <- paste(c(codec, brate, params, genre, file, d), collapse="\t")
+          }
+          writeLines(newline, con=conn)
         }
       }
     }
   }
 }
+
+# Close destination file
+close(conn)
