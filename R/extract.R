@@ -65,11 +65,11 @@ if(!exists("extract.data", mode="function")){
 
 # Prepare destination file =========================================================================
 
-# For efficiency, we simply write tab-separated raw data instead of creating an temporary data.frame
+# For efficiency, we simply write tab-separated raw data instead of creating a temporary data.frame
 # and then writing it to the file.
-path.extracted <- file.path(path.base, "extracted", tool.name, track.length, srate)
-dir.create(path.extracted, recursive=T, showWarnings=F)
-path.extracted <- file.path(path.extracted, paste0(descriptor.name,".txt"))
+path.extracted <- file.path(path.base, "extracted", tool.name, track.length, srate,
+                            paste0(descriptor.name, ".txt"))
+dir.create(dirname(path.extracted), recursive=T, showWarnings=F)
 # Delete previous data, if any
 unlink(path.extracted, force=T)
 # Initialize file
@@ -109,12 +109,12 @@ for(codec.path in list.dirs(recursive=F, path.descriptors)){
           if(!conn.head){
             if(is.null(params)){
               newline <- paste(c("codec", "brate",
-                                 "genre", "file",
+                                 "genre", "track",
                                  paste0("x", seq_along(d))), collapse="\t")
             }else{
               newline <- paste(c("codec", "brate",
                                  paste0("param", seq_along(params)),
-                                 "genre", "file",
+                                 "genre", "track",
                                  paste0("x", seq_along(d))), collapse="\t")
             }
             writeLines(newline, con=conn)
