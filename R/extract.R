@@ -15,8 +15,6 @@
 
 # options(echo=T)
 
-library(tools)
-
 DEFAULT_PATH_BASE <- file.path("..", "data")
 
 # PARSE COMMAND LINE ARGUMENTS #####################################################################
@@ -62,6 +60,8 @@ if(!exists("extract.data", mode="function")){
 }
 
 # RUN ##############################################################################################
+
+library(tools)
 
 # Prepare destination file =========================================================================
 

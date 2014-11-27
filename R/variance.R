@@ -15,8 +15,6 @@
 
 # options(echo=T)
 
-library(lme4)
-
 DEFAULT_PATH_BASE <- file.path("..", "data")
 
 # PARSE COMMAND LINE ARGUMENTS #####################################################################
@@ -52,6 +50,8 @@ if(!file.exists(path.indicators)){
 }
 
 # RUN ##############################################################################################
+
+library(lme4)
 
 # Prepare destination directory ====================================================================
 
@@ -105,6 +105,7 @@ for(i in (track.index+1):length(ind)){
   
   # Write variance components ----------------------------------------------------------------------
   
-  write.table(file=file.path(path.variance, paste0("variance_", ind.name, ".txt")),
+  write.table(file=file.path(path.variance,
+                             paste0("variance_", gsub("ind.", "", ind.name, fixed=T), ".txt")),
               col.names=T, row.names=F, sep="\t", quote=F, v)
 }
