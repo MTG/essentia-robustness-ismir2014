@@ -53,25 +53,22 @@ if(!file.exists(path.indicators)){
 
 # RUN ##############################################################################################
 
-# Prepare destination file =========================================================================
+# Prepare destination directory ====================================================================
 
-# For efficiency, we simply write tab-separated raw data instead of creating a temporary data.frame
-# and then writing it to the file.
-path.variance <- file.path(path.base, "variance", tool.name, track.length, srate,
-                           paste0(descriptor.name, ".txt"))
-dir.create(dirname(path.variance), recursive=T, showWarnings=F)
+path.variance <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name)
 # Delete previous data, if any
 unlink(path.variance, force=T)
-# Initialize file
-conn <- file(path.variance, open="w")
-# At this point we don't know anything about analysis parameters, so we can't just write column
-# names now. Keep this variable to tell us when to write the header for the first time.
-conn.head <- F
+# Initialize directory
+dir.create(path.variance, recursive=T, showWarnings=F)
 
 # Read indicators data and compute variance components =============================================
 
 ind <- read.table(path.indicators, head=T, sep="\t", quote="\"", stringsAsFactors=F)
 track.index <- which(names(ind) == "track") # to quickly index factor names and indicators
+# Set all effect columns to R factors, so they're fitted as nominal (is this really needed?)
+for(i in 1:track.index){
+  ind[,i] <- as.factor(ind[,i])
+}
 
 # Traverse indicators
 for(i in (track.index+1):length(ind)){
@@ -79,25 +76,35 @@ for(i in (track.index+1):length(ind)){
   
   # Create model formula ---------------------------------------------------------------------------
   
-  # Parse params
-  params <- character(0)
+  factors <- c("genre", "track", "codec", "codec:brate")
+  # If we have custom params, parse and add to list of factors
   if(track.index != 4){
     params <- names(ind)[3:(track.index-2)]
-  }
-  # Include params main effects
-  factors <- c("genre", "track", "codec", "codec:brate")
-  factors <- append(factors, params)
-  # their interaction with the codec effect
-  factors <- append(factors, paste("codec", params, sep=":"))
-  # and their interaction with the codec:brate effect
-  factors <- append(factors, paste("codec:brate", params, sep=":"))
-  
+    # Exclude params with zero-variance
+    params <- params[sapply(params, function(p) { length(unique(ind[,p])) > 1 })]
+    if(length(params) > 0){
+      # Include params main effects
+      factors <- append(factors, params)
+      # their interaction with the codec effect
+      factors <- append(factors, paste("codec", params, sep=":"))
+      # and their interaction with the codec:brate effect
+      factors <- append(factors, paste("codec:brate", params, sep=":"))
+    }
+  }  
   form <- as.formula(paste0(ind.name," ~ ",
                             paste0("(1|", factors, ")", collapse="+")))
   
-  # Fit model --------------------------------------------------------------------------------------
-  m <- lmer(form, data=ind)
+  # Fit model and analyze variance -----------------------------------------------------------------
+  
+  m <- lmer(form, data=ind, REML = F)
+  
+  v <- as.data.frame(VarCorr(m))
+  v$pctg <- v$vcov / sum(v$vcov) * 100
+  v <- v[c("grp", "vcov", "pctg")]
+  names(v) <- c("effect", "var", "var.pctg")
+  
+  # Write variance components ----------------------------------------------------------------------
+  
+  write.table(file=file.path(path.variance, paste0("variance_", ind.name, ".txt")),
+              col.names=T, row.names=F, sep="\t", quote=F, v)
 }
-
-# Close destination file
-close(conn)
