@@ -16,7 +16,7 @@
 # options(echo=T)
 
 DEFAULT_PATH_BASE <- file.path("..", "data")
-COMMANDS <- c("extract", "indicators", "distributions", "variance",
+COMMANDS <- c("extract", "indicators", "distributions", "boxplots", "variance",
               "all", "help")
 
 # PARSE COMMAND LINE ARGUMENTS #####################################################################
@@ -47,6 +47,7 @@ if(is.na(command.name) | !(command.name %in% COMMANDS) | command.name == "help" 
       "  extract        extract data specific of the descriptor.\n",
       "  indicators     compute robustness indicators.\n",
       "  distributions  describe the distributions of the indicators.\n",
+      "  boxplots       boxplot the distributions of the indicators.\n",
       "  variance       descompose in variance components.\n",
       "  --\n",
       "  all            run all commands (extract, indicators, distributions, variance).\n",
@@ -68,6 +69,8 @@ if(command.name == "all"){
   source("commands/indicators.R")
   cat("distributions\n")
   source("commands/distributions.R")
+  cat("boxplots\n")
+  source("commands/boxplots.R")
   cat("variance\n")
   source("commands/variance.R")
 }else{
