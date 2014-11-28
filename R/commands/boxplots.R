@@ -33,7 +33,9 @@ dir.create(dirname(path.boxplots), recursive=T, showWarnings=F)
 # Delete previous plot, if any
 unlink(path.boxplots, force=T)
 # Initialize plot
-pdf(file=path.boxplots, onefile =T)
+pdf(file=path.boxplots, onefile=T, paper="a4")
+# Increase bottom margin, make labels perpendicular to axes and reduce font size+
+par(mar=c(20,3,3,1), cex=.7, las=3)
 
 # Read indicators data and boxplot distributions ===================================================
 
