@@ -55,6 +55,21 @@ summary.names <- c("n",
                    "p2.5","p97.5",
                    "var","sd")
 
+# Compile list of effects to summarize by ----------------------------------------------------------
+
+factors <- c("genre", "track", "codec", "codec:brate")
+# If we have custom params, parse and add to list of factors
+if(track.index != 4){
+  params <- names(ind)[3:(track.index-2)]
+  
+  # Include params main effects
+  factors <- append(factors, params)
+  # their interaction with the codec effect
+  factors <- append(factors, paste("codec", params, sep=":"))
+  # and their interaction with the codec:brate effect
+  factors <- append(factors, paste("codec:brate", params, sep=":"))
+}
+
 # Traverse indicators
 for(i in (track.index+1):length(ind)){
   ind.name <- names(ind)[i]
@@ -73,19 +88,6 @@ for(i in (track.index+1):length(ind)){
              con=conn)
   
   # Distributions by factors -----------------------------------------------------------------------
-  
-  factors <- c("genre", "track", "codec", "codec:brate")
-  # If we have custom params, parse and add to list of factors
-  if(track.index != 4){
-    params <- names(ind)[3:(track.index-2)]
-    
-    # Include params main effects
-    factors <- append(factors, params)
-    # their interaction with the codec effect
-    factors <- append(factors, paste("codec", params, sep=":"))
-    # and their interaction with the codec:brate effect
-    factors <- append(factors, paste("codec:brate", params, sep=":"))
-  }
   
   for(f in factors){
     form <- as.formula(paste0(ind.name, " ~ ", f))

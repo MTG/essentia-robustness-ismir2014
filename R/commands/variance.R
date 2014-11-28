@@ -31,7 +31,7 @@ library(lme4)
 # For efficiency, we simply write tab-separated raw data instead of creating temporary data.frames
 # and then writing them to the file.
 path.variance <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name,
-                            "variance.txt")
+                           "variance.txt")
 dir.create(dirname(path.variance), recursive=T, showWarnings=F)
 # Delete previous data, if any
 unlink(path.variance, force=T)
@@ -47,33 +47,32 @@ for(i in 1:track.index){
   ind[,i] <- as.factor(ind[,i])
 }
 
+# Compile list of effects to include in the model --------------------------------------------------
+
+factors <- c("genre", "track", "codec", "codec:brate")
+# If we have custom params, parse and add to list of factors
+if(track.index != 4){
+  params <- names(ind)[3:(track.index-2)]
+  # Exclude params with zero-variance
+  params <- params[sapply(params, function(p) { length(unique(ind[,p])) > 1 })]
+  if(length(params) > 0){
+    # Include params main effects
+    factors <- append(factors, params)
+    # their interaction with the codec effect
+    factors <- append(factors, paste("codec", params, sep=":"))
+    # and their interaction with the codec:brate effect
+    factors <- append(factors, paste("codec:brate", params, sep=":"))
+  }
+}  
+
 # Traverse indicators
 for(i in (track.index+1):length(ind)){
   ind.name <- names(ind)[i]
   ind.cleanname <- gsub("ind.", "", ind.name, fixed=T)
   
-  # Create model formula ---------------------------------------------------------------------------
-  
-  factors <- c("genre", "track", "codec", "codec:brate")
-  # If we have custom params, parse and add to list of factors
-  if(track.index != 4){
-    params <- names(ind)[3:(track.index-2)]
-    # Exclude params with zero-variance
-    params <- params[sapply(params, function(p) { length(unique(ind[,p])) > 1 })]
-    if(length(params) > 0){
-      # Include params main effects
-      factors <- append(factors, params)
-      # their interaction with the codec effect
-      factors <- append(factors, paste("codec", params, sep=":"))
-      # and their interaction with the codec:brate effect
-      factors <- append(factors, paste("codec:brate", params, sep=":"))
-    }
-  }  
-  form <- as.formula(paste0(ind.name," ~ ",
-                            paste0("(1|", factors, ")", collapse="+")))
-  
   # Fit model and analyze variance -----------------------------------------------------------------
   
+  form <- as.formula(paste0(ind.name," ~ ", paste0("(1|", factors, ")", collapse="+")))
   m <- lmer(form, data=ind, REML = F)
   
   v <- as.data.frame(VarCorr(m))
