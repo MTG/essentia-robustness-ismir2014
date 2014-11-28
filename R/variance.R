@@ -53,13 +53,17 @@ if(!file.exists(path.indicators)){
 
 library(lme4)
 
-# Prepare destination directory ====================================================================
+# Prepare destination file =========================================================================
 
-path.variance <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name)
+# For efficiency, we simply write tab-separated raw data instead of creating temporary data.frames
+# and then writing them to the file.
+path.variance <- file.path(path.base, "variance", tool.name, track.length, srate,
+                           paste0(descriptor.name, ".txt"))
+dir.create(dirname(path.variance), recursive=T, showWarnings=F)
 # Delete previous data, if any
 unlink(path.variance, force=T)
-# Initialize directory
-dir.create(path.variance, recursive=T, showWarnings=F)
+# Initialize file
+conn <- file(path.variance, open="w")
 
 # Read indicators data and compute variance components =============================================
 
@@ -73,6 +77,7 @@ for(i in 1:track.index){
 # Traverse indicators
 for(i in (track.index+1):length(ind)){
   ind.name <- names(ind)[i]
+  ind.cleanname <- gsub("ind.", "", ind.name, fixed=T)
   
   # Create model formula ---------------------------------------------------------------------------
   
@@ -105,7 +110,12 @@ for(i in (track.index+1):length(ind)){
   
   # Write variance components ----------------------------------------------------------------------
   
-  write.table(file=file.path(path.variance,
-                             paste0("variance_", gsub("ind.", "", ind.name, fixed=T), ".txt")),
-              col.names=T, row.names=F, sep="\t", quote=F, v)
+  writeLines(c(paste("**", ind.cleanname),
+               paste(names(v), collapse="\t"),
+               apply(v, 1, function(x){ paste(x, collapse="\t") }),
+               ""),
+             con=conn)
 }
+
+# Close destination file
+close(conn)
