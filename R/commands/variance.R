@@ -15,8 +15,8 @@
 
 # CHECK ARGUMENTS (taken from main script) #########################################################
 
-path.indicators <- file.path(path.base, "indicators", tool.name, track.length, srate,
-                             paste0(descriptor.name, ".txt"))
+path.indicators <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name,
+                             "indicators.txt")
 if(!file.exists(path.indicators)){
   cat(sep="", "Error: indicators file '", path.indicators, "' does not exist.\n")
   q(status=1)
@@ -30,8 +30,8 @@ library(lme4)
 
 # For efficiency, we simply write tab-separated raw data instead of creating temporary data.frames
 # and then writing them to the file.
-path.variance <- file.path(path.base, "variance", tool.name, track.length, srate,
-                           paste0(descriptor.name, ".txt"))
+path.variance <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name,
+                            "variance.txt")
 dir.create(dirname(path.variance), recursive=T, showWarnings=F)
 # Delete previous data, if any
 unlink(path.variance, force=T)

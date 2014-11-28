@@ -40,8 +40,8 @@ library(tools)
 
 # For efficiency, we simply write tab-separated raw data instead of creating a temporary data.frame
 # and then writing it to the file.
-path.extracted <- file.path(path.base, "extracted", tool.name, track.length, srate,
-                            paste0(descriptor.name, ".txt"))
+path.extracted <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name,
+                            "extracted.txt")
 dir.create(dirname(path.extracted), recursive=T, showWarnings=F)
 # Delete previous data, if any
 unlink(path.extracted, force=T)

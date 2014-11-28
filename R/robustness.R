@@ -16,7 +16,8 @@
 # options(echo=T)
 
 DEFAULT_PATH_BASE <- file.path("..", "data")
-COMMANDS <- c("extract", "indicators", "distributions", "variance", "all", "help")
+COMMANDS <- c("extract", "indicators", "distributions", "variance",
+              "all", "help")
 
 # PARSE COMMAND LINE ARGUMENTS #####################################################################
 
@@ -54,7 +55,7 @@ if(is.na(command.name) | !(command.name %in% COMMANDS) | command.name == "help" 
       "Expected file structure of descriptors:\n",
       "  path/descriptors/<tool>/<track-length>/<srate>/<descriptor>/<codec>/<brate>/<param1>-...-<paramN>/<genre>/file\n",
       "Output file structure:\n",
-      "  path/<command>/<tool>/<track-length>/<srate>/<descriptor>.txt\n")
+      "  path/results/<tool>/<track-length>/<srate>/<descriptor>/<command>.txt\n")
   q(status=1)
 }
 

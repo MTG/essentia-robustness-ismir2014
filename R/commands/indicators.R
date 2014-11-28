@@ -15,8 +15,8 @@
 
 # CHECK ARGUMENTS (taken from main script) #########################################################
 
-path.extracted <- file.path(path.base, "extracted", tool.name, track.length, srate,
-                            paste0(descriptor.name, ".txt"))
+path.extracted <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name,
+                            "extracted.txt")
 if(!file.exists(path.extracted)){
   cat(sep="", "Error: extracted file '", path.extracted, "' does not exist.\n")
   q(status=1)
@@ -28,8 +28,8 @@ if(!file.exists(path.extracted)){
 
 # For efficiency, we simply write tab-separated raw data instead of creating a temporary data.frame
 # and then writing it to the file.
-path.indicators <- file.path(path.base, "indicators", tool.name, track.length, srate,
-                             paste0(descriptor.name, ".txt"))
+path.indicators <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name,
+                            "indicators.txt")
 dir.create(dirname(path.indicators), recursive=T, showWarnings=F)
 # Delete previous data, if any
 unlink(path.indicators, force=T)

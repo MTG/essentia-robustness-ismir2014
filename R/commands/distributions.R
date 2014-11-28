@@ -15,8 +15,8 @@
 
 # CHECK ARGUMENTS (taken from main script) #########################################################
 
-path.indicators <- file.path(path.base, "indicators", tool.name, track.length, srate,
-                             paste0(descriptor.name, ".txt"))
+path.indicators <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name,
+                             "indicators.txt")
 if(!file.exists(path.indicators)){
   cat(sep="", "Error: indicators file '", path.indicators, "' does not exist.\n")
   q(status=1)
@@ -30,8 +30,8 @@ library(doBy)
 
 # For efficiency, we simply write tab-separated raw data instead of creating temporary data.frames
 # and then writing them to the file.
-path.distribution <- file.path(path.base, "distributions", tool.name, track.length, srate,
-                               paste0(descriptor.name, ".txt"))
+path.distribution <- file.path(path.base, "results", tool.name, track.length, srate, descriptor.name,
+                            "distributions.txt")
 dir.create(dirname(path.distribution), recursive=T, showWarnings=F)
 # Delete previous data, if any
 unlink(path.distribution, force=T)
