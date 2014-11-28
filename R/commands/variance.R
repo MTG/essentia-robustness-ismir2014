@@ -13,35 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-# options(echo=T)
+# CHECK ARGUMENTS (taken from main script) #########################################################
 
-DEFAULT_PATH_BASE <- file.path("..", "data")
-
-# PARSE COMMAND LINE ARGUMENTS #####################################################################
-
-args <- commandArgs(trailingOnly=T)
-tool.name <- args[1]
-track.length <- args[2]
-srate <- args[3]
-descriptor.name <- args[4]
-path.base <- args[5]
-path.base <- ifelse(is.na(path.base), DEFAULT_PATH_BASE, path.base)
-
-# Check arguments
-if(is.na(tool.name) | is.na(track.length) | is.na(srate) | is.na(descriptor.name) | is.na(path.base)){
-  cat(sep="",
-      "usage: Rscript variance.R <tool> <track-length> <srate> <descriptor> [<path>]\n",
-      "\n",
-      "tool          name of the tool used to compute descriptors, eg. 'essentia'.\n",
-      "track-length  length of the track used to compute descriptors, eg '30-60'.\n",
-      "srate         sampling rate of the track used to compute descriptors, eg. '44100'.\n",
-      "descriptor    name of the descriptor to compute variance components with, eg. 'lowlevel.mfcc.mean'.\n",
-      "path          optional path to all data, defaults to '", DEFAULT_PATH_BASE, "'.\n",
-      "\n",
-      "Expected file structure:\n",
-      "  path/indicators/<tool>/<track-length>/<srate>/<descriptor>.txt\n")
-  q(status=1)
-}
 path.indicators <- file.path(path.base, "indicators", tool.name, track.length, srate,
                              paste0(descriptor.name, ".txt"))
 if(!file.exists(path.indicators)){
