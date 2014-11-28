@@ -43,6 +43,18 @@ conn <- file(path.distribution, open="w")
 ind <- read.table(path.indicators, head=T, sep="\t", quote="\"", stringsAsFactors=F)
 track.index <- which(names(ind) == "track") # to quickly index factor names and indicators
 
+# Function and names of the summaries
+summary.fun <- function(x){ c(length(x),
+                              mean(x), median(x),
+                              min(x), max(x),
+                              quantile(x, .025), quantile(x, .975),
+                              var(x), sd(x)) }
+summary.names <- c("n",
+                   "mean","median",
+                   "min", "max",
+                   "p2.5","p97.5",
+                   "var","sd")
+
 # Traverse indicators
 for(i in (track.index+1):length(ind)){
   ind.name <- names(ind)[i]
@@ -51,14 +63,8 @@ for(i in (track.index+1):length(ind)){
   # Overall distribution ---------------------------------------------------------------------------
   
   form <- as.formula(paste0(ind.name, " ~ 1"))
-  a <- summaryBy(form, data=ind, FUN=function(x){ c(mean(x), median(x),
-                                                       min(x), max(x),
-                                                       quantile(x, .025), quantile(x, .975),
-                                                       var(x), sd(x)) })
-  names(a)[seq(to=length(a), length.out=8)] <- c("mean","median",
-                                                 "min", "max",
-                                                 "p2.5","p97.5",
-                                                 "var","sd")
+  a <- summaryBy(form, data=ind, FUN=summary.fun)
+  names(a)[seq(to=length(a), length.out=length(summary.names))] <- summary.names
   
   writeLines(c(paste("**", ind.cleanname),
                paste(names(a), collapse="\t"),
@@ -83,14 +89,8 @@ for(i in (track.index+1):length(ind)){
   
   for(f in factors){
     form <- as.formula(paste0(ind.name, " ~ ", f))
-    a <- summaryBy(form, data=ind, FUN=function(x){ c(mean(x), median(x),
-                                                      min(x), max(x),
-                                                      quantile(x, .025), quantile(x, .975),
-                                                      var(x), sd(x)) })
-    names(a)[seq(to=length(a), length.out=8)] <- c("mean","median",
-                                                   "min", "max",
-                                                   "p2.5","p97.5",
-                                                   "var","sd")
+    a <- summaryBy(form, data=ind, FUN=summary.fun)
+    names(a)[seq(to=length(a), length.out=length(summary.names))] <- summary.names
     
     writeLines(c(paste("**", ind.cleanname, "by", f),
                  paste(names(a), collapse="\t"),
