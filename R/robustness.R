@@ -48,7 +48,7 @@ if(is.na(command.name) | !(command.name %in% COMMANDS) | command.name == "help" 
       "  indicators     compute robustness indicators.\n",
       "  distributions  describe the distributions of the indicators.\n",
       "  boxplots       boxplot the distributions of the indicators.\n",
-      "  variance       descompose in variance components.\n",
+      "  variance       decompose in variance components.\n",
       "  --\n",
       "  all            run all commands (extract, indicators, distributions, variance).\n",
       "  help           show this message.\n",
