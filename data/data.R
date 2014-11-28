@@ -28,8 +28,12 @@
 
 library(digest)
 
+# Set path
+tool.name <- "essentia"
+track.length <- "60-90"
+path.base <- file.path("./descriptors", tool.name, track.length)
 # remove previous data, if any
-unlink("descriptors", recursive = T, force = T)
+unlink(path.base, recursive = T, force = T)
 
 # traverse genres, and all files within
 for(genre.path in list.dirs("./original", recursive = F, full.names = T)){
@@ -39,18 +43,19 @@ for(genre.path in list.dirs("./original", recursive = F, full.names = T)){
     file <- basename(file.path)
     
     # split filename in factors
-    parts <- unlist(strsplit(file, ".", fixed=T))    
+    parts <- unlist(strsplit(file, ".flac.wav.", fixed=T))
     name <- digest(parts[1], algo="md5")
-    codec <- parts[4]
+    parts <- unlist(strsplit(parts[2], ".", fixed=T))  
+    codec <- parts[1]
     if(codec == "WAV"){
       brate <- 1411
-      srate <- parts[5]
-      fsize <- parts[7]
+      srate <- parts[2]
+      fsize <- parts[4]
     }else{
-      codec <- paste0(parts[4],".",parts[5])
-      brate <- parts[6]
-      srate <- parts[7]
-      fsize <- parts[9]      
+      codec <- paste0(parts[1],".",parts[2])
+      brate <- parts[3]
+      srate <- parts[4]
+      fsize <- parts[6]      
     }
     
     # copy only a sample of brates and fsizes
@@ -58,9 +63,7 @@ for(genre.path in list.dirs("./original", recursive = F, full.names = T)){
          fsize %in% c("1024_512","4096_2048","16384_8192")){
       
       # create destination directory if necessary
-      dir <- file.path("descriptors",
-                       "essentia", # tool
-                       "60-90", # track length
+      dir <- file.path(path.base,
                        srate,
                        codec,
                        brate,
