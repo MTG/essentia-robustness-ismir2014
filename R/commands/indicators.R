@@ -60,11 +60,28 @@ for(i in 1:nrow(ex.lossy)){
   
   # Compute indicators
   indicators <- numeric(0)
-  indicators["relative"] <- mean(abs(lossy - lossless) / apply(data.frame(abs(lossy), abs(lossless)), 1, max))
-  indicators["epsilon"] <- sqrt(sum((lossy - lossless)^2))
-  indicators["pearson"] <- cor(lossy, lossless, method="p")
-  indicators["spearman"] <- cor(lossy, lossless, method="s")
-  indicators["cosine"] <- sum(lossy * lossless) / sqrt(sum(lossy^2)) / sqrt(sum(lossless^2))
+  if(length(lossy) > 1) {
+    # Descriptor is a vector -----------------------------------------------------------------------
+    
+    # Assume it's a vector of numbers (what to do with strings? maybe % that are equal?)
+    indicators["absolute"] <- mean(abs(lossy - lossless))
+    indicators["relative"] <- mean(abs(lossy - lossless) / pmax(abs(lossy), abs(lossless)))
+    indicators["epsilon"] <- sqrt(sum((lossy - lossless)^2))
+    indicators["pearson"] <- cor(lossy, lossless, method="p")
+    indicators["spearman"] <- cor(lossy, lossless, method="s")
+    indicators["cosine"] <- sum(lossy * lossless) / sqrt(sum(lossy^2)) / sqrt(sum(lossless^2))
+  }else{    
+    # Descriptor is a single value -----------------------------------------------------------------
+    
+    if(is.character(lossy)){
+      # Descriptor is a string
+      indicators["equal"] <- ifelse(lossy == lossless, 1, 0)
+    }else{
+      # Descriptor is numeric
+      indicators["relative"] <- abs(lossy - lossless) / max(abs(lossy), abs(lossless))
+      indicators["absolute"] <- abs(lossy - lossless)
+    }
+  }
   
   # Write column names if first time here
   if(!conn.head){
