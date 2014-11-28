@@ -49,11 +49,11 @@ summary.fun <- function(x){ c(length(x),
                               min(x), max(x),
                               quantile(x, .025), quantile(x, .975),
                               var(x), sd(x)) }
-summary.names <- c("n",
-                   "mean","median",
-                   "min", "max",
-                   "p2.5","p97.5",
-                   "var","sd")
+summary.names <- paste0("desc.", c("n",
+                                   "mean","median",
+                                   "min", "max",
+                                   "p2.5","p97.5",
+                                   "var","sd"))
 
 # Compile list of effects to summarize by ----------------------------------------------------------
 
