@@ -51,8 +51,14 @@ for(i in (track.index+1):length(ind)){
   # Overall distribution ---------------------------------------------------------------------------
   
   form <- as.formula(paste0(ind.name, " ~ 1"))
-  a <- summaryBy(form, data=ind, FUN=function(x){ list(mean(x), median(x), var(x), sd(x)) })
-  names(a)[seq(to=length(a), length.out=4)] <- c("mean","median","var","sd")
+  a <- summaryBy(form, data=ind, FUN=function(x){ c(mean(x), median(x),
+                                                       min(x), max(x),
+                                                       quantile(x, .025), quantile(x, .975),
+                                                       var(x), sd(x)) })
+  names(a)[seq(to=length(a), length.out=8)] <- c("mean","median",
+                                                 "min", "max",
+                                                 "p2.5","p97.5",
+                                                 "var","sd")
   
   writeLines(c(paste("**", ind.cleanname),
                paste(names(a), collapse="\t"),
@@ -77,8 +83,14 @@ for(i in (track.index+1):length(ind)){
   
   for(f in factors){
     form <- as.formula(paste0(ind.name, " ~ ", f))
-    a <- summaryBy(form, data=ind, FUN=function(x){ list(mean(x), median(x), var(x), sd(x)) })
-    names(a)[seq(to=length(a), length.out=4)] <- c("mean","median","var","sd")
+    a <- summaryBy(form, data=ind, FUN=function(x){ c(mean(x), median(x),
+                                                      min(x), max(x),
+                                                      quantile(x, .025), quantile(x, .975),
+                                                      var(x), sd(x)) })
+    names(a)[seq(to=length(a), length.out=8)] <- c("mean","median",
+                                                   "min", "max",
+                                                   "p2.5","p97.5",
+                                                   "var","sd")
     
     writeLines(c(paste("**", ind.cleanname, "by", f),
                  paste(names(a), collapse="\t"),
