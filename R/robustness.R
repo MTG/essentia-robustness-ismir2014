@@ -63,16 +63,10 @@ if(is.na(command.name) | !(command.name %in% COMMANDS) | command.name == "help" 
 # RUN COMMAND ######################################################################################
 
 if(command.name == "all"){
-  cat("extract\n")
-  source("commands/extract.R")
-  cat("indicators\n")
-  source("commands/indicators.R")
-  cat("distributions\n")
-  source("commands/distributions.R")
-  cat("boxplots\n")
-  source("commands/boxplots.R")
-  cat("variance\n")
-  source("commands/variance.R")
+  for(command in COMMANDS[1:(length(COMMANDS)-2)]){
+    cat("**", command, "\n")
+    source(file.path("commands",paste0(command, ".R")))
+  }
 }else{
   source(file.path("commands", paste0(command.name, ".R")))
 }
