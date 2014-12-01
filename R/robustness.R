@@ -54,7 +54,7 @@ if(is.na(command.name) | !(command.name %in% COMMANDS) | command.name == "help" 
       "  help           show this message.\n",
       "\n",
       "Expected file structure of descriptors:\n",
-      "  path/descriptors/<tool>/<track-length>/<srate>/<descriptor>/<codec>/<brate>/<param1>-...-<paramN>/<genre>/file\n",
+      "  path/descriptors/<tool>/<track-length>/<srate>/<codec>/<brate>/<param1>-...-<paramN>/<genre>/file\n",
       "Output file structure:\n",
       "  path/results/<tool>/<track-length>/<srate>/<descriptor>/<command>.txt\n")
   q(status=1)

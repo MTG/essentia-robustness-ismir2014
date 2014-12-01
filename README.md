@@ -32,7 +32,7 @@ Use `robustness.R` as the main entry point from `Rscript`:
 	  help           show this message.
 
 	Expected file structure of descriptors:
-	  path/descriptors/<tool>/<track-length>/<srate>/<descriptor>/<codec>/<brate>/<param1>-...-<paramN>/<genre>/file
+	  path/descriptors/<tool>/<track-length>/<srate>/<codec>/<brate>/<param1>-...-<paramN>/<genre>/file
 	Output file structure:
 	  path/results/<tool>/<track-length>/<srate>/<descriptor>/<command>.txt
 	  
