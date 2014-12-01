@@ -60,6 +60,19 @@ if(is.na(command.name) | !(command.name %in% COMMANDS) | command.name == "help" 
   q(status=1)
 }
 
+# FUNCTIONS COMMON TO ALL COMMANDS #################################################################
+
+# Given the vector of factor names 'fs', return their order.
+# Sorted by degree (main effects, 2nd order interactions, 3rd order, etc.) and then by name.
+# The last effects are always 'genre', 'track' and 'Residual' (if present).
+order.factors <- function(fs){
+  degree <- nchar(gsub("[^:]", "", fs))
+  degree[fs=="genre"] <- .Machine$integer.max-2
+  degree[fs=="track"] <- .Machine$integer.max-1
+  degree[fs=="Residual"] <- .Machine$integer.max
+  return(order(degree, fs))
+}
+
 # RUN COMMAND ######################################################################################
 
 if(command.name == "all"){

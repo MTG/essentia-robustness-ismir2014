@@ -33,7 +33,7 @@ dir.create(dirname(path.boxplots), recursive=T, showWarnings=F)
 # Delete previous plot, if any
 unlink(path.boxplots, force=T)
 # Initialize plot
-pdf(file=path.boxplots, onefile=T, paper="a4")
+pdf(file=path.boxplots, onefile=T, paper="a4", width=7, height=10)
 # Increase bottom margin, make labels perpendicular to axes and reduce font size+
 par(mar=c(20,3,3,1), cex=.7, las=3)
 
@@ -68,12 +68,13 @@ for(i in (track.index+1):length(ind)){
   
   # Boxplots by factors ----------------------------------------------------------------------------
   
-  for(f in factors){
+  for(f in factors[order.factors(factors)]){
     form <- as.formula(paste0(ind.name, " ~ droplevels(", f, ")"))
     boxplot(form, data=ind, notch=T, main=paste(ind.cleanname, "by", f))
     # Plot means too
     a <- aggregate(form, data=ind, FUN=mean)
-    points(a[ind.name], col="blue", pch=4)
+    points(a[ind.name], col="blue", pch=4, lwd=2)
+    grid()
   }
 }
 

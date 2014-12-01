@@ -79,6 +79,7 @@ for(i in (track.index+1):length(ind)){
   v$pctg <- v$vcov / sum(v$vcov) * 100
   v <- v[c("grp", "vcov", "pctg")]
   names(v) <- c("effect", "var", "var.pctg")
+  v <- v[order.factors(v$effect),]
   
   # Write variance components ----------------------------------------------------------------------
   

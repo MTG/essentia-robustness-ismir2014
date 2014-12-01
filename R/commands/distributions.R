@@ -89,7 +89,7 @@ for(i in (track.index+1):length(ind)){
   
   # Distributions by factors -----------------------------------------------------------------------
   
-  for(f in factors){
+  for(f in factors[order.factors(factors)]){
     form <- as.formula(paste0(ind.name, " ~ ", f))
     a <- summaryBy(form, data=ind, FUN=summary.fun)
     names(a)[seq(to=length(a), length.out=length(summary.names))] <- summary.names
